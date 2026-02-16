@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     XRAY_GRPC_ADDR: str = "127.0.0.1:10085"
 
     # --- Инфраструктура ---
-    DATABASE_URL: str = "sqlite:///data/hrm_database.db"
+    DATABASE_URL: str = "sqlite:///./output/hrm_database.db"
 
     # --- Логика Mesh ---
     # Мы ожидаем строку через запятую: "vless-vision,vless-h2"
