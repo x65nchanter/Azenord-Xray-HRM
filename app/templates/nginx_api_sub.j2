@@ -15,8 +15,7 @@ server {
 }
 
 server {
-    listen {{ settings.INTERNAL_API_ADDR | default('443') }} ssl;
-    http2 on;
+    listen {{ settings.INTERNAL_API_ADDR | default('443') }} ssl http2;
     server_name {{ settings.SERVER_ADDR }};
 
     # SSL сертификаты (те же, что и для основного домена, если это wildcard, или отдельные)
