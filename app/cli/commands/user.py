@@ -16,7 +16,11 @@ console = Console()
 
 
 @app.command("add")
-def add_user(nickname: str, email: str):
+def add_user(
+    nickname: str,
+    email: str,
+    no_sync: bool = typer.Option(False, "--no-sync", help="Skip Xray gRPC synchronization"),
+):
     """Safe registration with full rollback on failure"""
     if not xray.check_connection():
         console.print("[bold red]❌ Xray gRPC is NOT reachable![/bold red]")
@@ -37,11 +41,14 @@ def add_user(nickname: str, email: str):
 
         try:
             # 2. Xray Sync Phase
-            for tag in active_tags:
-                if xray.add_user(inbound_tag=tag.value, email=email, user_uuid=new_uuid):
-                    added_tags.append(tag.value)
-                else:
-                    raise Exception(f"Failed to add to inbound: {tag.value}")
+            if no_sync:
+                console.print("[blue]ℹ Skipping Xray sync as requested.[/blue]")
+            else:
+                for tag in active_tags:
+                    if xray.add_user(inbound_tag=tag.value, email=email, user_uuid=new_uuid):
+                        added_tags.append(tag.value)
+                    else:
+                        raise Exception(f"Failed to add to inbound: {tag.value}")
 
             # 3. Database Phase
             user = User(nickname=nickname, email=email, uuid=new_uuid, internal_ip=new_ip)
@@ -54,8 +61,11 @@ def add_user(nickname: str, email: str):
             console.print(f"[bold red]❌ Sync Error: {e}[/bold red]")
             console.print("[yellow]🔄 Rolling back Xray changes...[/yellow]")
 
-            for tag in added_tags:
-                xray.remove_user(inbound_tag=tag, email=email)
+            if no_sync:
+                console.print("[blue]ℹ Skipping Xray sync as requested.[/blue]")
+            else:
+                for tag in added_tags:
+                    xray.remove_user(inbound_tag=tag, email=email)
 
             console.print("[red]Cleanup complete. No changes were saved.[/red]")
 
@@ -181,3 +191,32 @@ def toggle_user_logic(nickname: str, force_state: bool):
         session.add(user)
         session.commit()
         console.print(f"👤 Юзер {nickname} {label}.")
+
+
+@app.command("sync")
+def sync_all():
+    """Force push all users from DB to Xray"""
+    if not xray.check_connection():
+        console.print("[bold red]❌ Cannot sync: Xray gRPC unreachable.[/bold red]")
+        return
+
+    active_tags = [t.value for t in get_active_tags()]
+
+    with Session(engine) as session:
+        users = session.exec(select(User)).all()
+        if not users:
+            console.print("[yellow]No users in database to sync.[/yellow]")
+            return
+
+        with console.status("[bold green]Syncing users to Xray..."):
+            for user in users:
+                for tag in active_tags:
+                    success = xray.add_user(inbound_tag=tag, email=user.email, user_uuid=user.uuid)
+                    if success:
+                        console.print(f"[green]✔[/green] {user.nickname} -> {tag}")
+                    else:
+                        console.print(
+                            f"[red]✘[/red] {user.nickname} -> {tag} (likely already exists)"
+                        )
+
+    console.print("[bold green]✅ Full sync complete.[/bold green]")
