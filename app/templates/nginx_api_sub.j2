@@ -15,7 +15,7 @@ server {
 }
 
 server {
-    listen 443 ssl;
+    listen {{ settings.INTERNAL_API_ADDR | default('443') }} ssl;
     http2 on;
     server_name {{ settings.SERVER_ADDR }};
 

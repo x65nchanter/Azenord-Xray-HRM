@@ -18,6 +18,7 @@ class Settings(BaseSettings):
 
     # --- Управление Xray ---
     XRAY_GRPC_ADDR: str = "127.0.0.1:10085"
+    INTERNAL_API_ADDR: str = "127.0.0.1:444"
 
     # --- Инфраструктура ---
     DATABASE_URL: str = "sqlite:///./output/hrm_database.db"
