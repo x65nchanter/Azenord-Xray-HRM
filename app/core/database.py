@@ -1,5 +1,7 @@
 from sqlmodel import Session, SQLModel, create_engine
 
+from app.core.models import Route, RoutePolicy, User
+
 from .config import settings
 
 # Теперь база может лежать где угодно, согласно .env
