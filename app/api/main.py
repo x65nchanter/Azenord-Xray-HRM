@@ -40,7 +40,6 @@ async def get_subscription(user_uuid: str, session: Session = Depends(get_sessio
 
     # Отдаем как ТЕКСТ (это важно для парсеров)
     return {
-        "version": 2,
         "email": user.email,
         "fakedns": [{"ipPool": "198.18.0.0/16", "poolSize": 65535}],
         "dns": {
