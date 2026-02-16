@@ -73,7 +73,9 @@ def install():
     local_service = Path("output/azenord-hrm.service")
 
     if local_xray_json.exists():
-        check = subprocess.run([xray_bin, "test", "-c", str(local_xray_json)], capture_output=True)
+        check = subprocess.run(
+            [xray_bin, "-test", "-config", str(local_xray_json)], capture_output=True
+        )
         if check.returncode != 0:
             console.print(f"[bold red]❌ Xray config invalid: {check.stderr.decode()}[/bold red]")
             sys.exit(1)
