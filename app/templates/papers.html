@@ -79,6 +79,29 @@
                 border: 1px solid #004408;
                 padding: 10px;
             }
+
+            .guide-box {
+                opacity: 0;
+                animation: fadeIn 1s 5.5s forwards;
+                margin-top: 40px;
+                border-top: 1px dashed #004408;
+                padding-top: 20px;
+            }
+            .cmd {
+                color: #fff;
+                background: #111;
+                padding: 2px 5px;
+            }
+            .step {
+                margin-bottom: 15px;
+                color: #008f11;
+            }
+            .guide-header {
+                color: #00ff41;
+                font-weight: bold;
+                text-decoration: underline;
+                margin-bottom: 10px;
+            }
         </style>
     </head>
     <body>
@@ -101,10 +124,46 @@
             <p>> SUBSCRIPTION_ACCESS_LINK (SAVE_IT):</p>
             <div class="token-box">{{ next_link }}</div>
 
-            <p style="margin-top: 20px; color: #444">
+            <p style="margin-top: 20px; color: #b44">
                 [!] WARNING: SESSION_TOKEN_BURNED_UPON_READ.
             </p>
             <p style="color: #444">_END_OF_LINE_</p>
+
+            <div class="guide-box">
+                <div class="guide-header">
+                    MANUAL: HOW_TO_LINK_IDENTITY_TO_V2RAYN
+                </div>
+
+                <div class="step">
+                    [1] Скопируйте ссылку доступа (выше) или
+                    <span class="highlight">URL вашей подписки</span>: <br />
+                    <span class="cmd">{{ next_link }}</span>
+                </div>
+
+                <div class="step">
+                    [2] Откройте <span class="highlight">v2rayN</span> ->
+                    Вкладка
+                    <span class="highlight">Subscription group</span>
+                    (Подписки).
+                </div>
+
+                <div class="step">
+                    [3] Нажмите <span class="highlight">Add</span> -> Вставьте
+                    URL в поле <span class="highlight">Url</span> и дайте имя
+                    "Azenord".
+                </div>
+
+                <div class="step">
+                    [4] Сохраните (Confirm) -> Нажмите
+                    <span class="highlight">Update subscription</span> (Обновить
+                    подписки) без прокси.
+                </div>
+
+                <div class="step">
+                    [5] Выберите один из узлов (Vision/h2/h3) и нажмите
+                    <span class="highlight">Enter</span> для активации.
+                </div>
+            </div>
         </div>
     </body>
 </html>
