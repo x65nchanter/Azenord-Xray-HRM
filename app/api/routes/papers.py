@@ -10,6 +10,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select
 
+from app.core.config import settings
 from app.core.database import get_session
 from app.core.models import User
 
@@ -46,7 +47,7 @@ async def get_resident_papers(
     session.commit()
     session.refresh(user)
 
-    sub_url = user.papers_link
+    sub_url = f"https://{settings.API_DOMAIN}/v1/sub/{user.uuid}"
     qr = qrcode.QRCode(version=1, box_size=10, border=2)
     qr.add_data(sub_url)
     qr.make(fit=True)
