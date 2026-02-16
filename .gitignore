@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Azenord Mesh Temp
+output/
+app/core/xray_api/
+proto_src/
+
+# IDE & Tools
+.vscode/
+.idea/
+.pytest_cache/
+.ruff_cache/

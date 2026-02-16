@@ -1,0 +1,98 @@
+{
+  "log": { "loglevel": "warning" },
+  "stats": {},
+  "api": {
+    "tag": "api",
+    "services": ["HandlerService", "StatsService", "LoggerService"]
+  },
+  "policy": {
+    "levels": {
+      "0": { "statsUserUplink": true, "statsUserDownlink": true }
+    },
+    "system": { "statsInboundUplink": true, "statsInboundDownlink": true }
+  },
+  "dns": {
+    "queryStrategy": "UseIPv4",
+    "servers": [ "fakedns", "1.1.1.1", "localhost" ],
+    "fakedns": [{ "ipPool": "10.0.8.0/24", "poolSize": 256 }]
+  },
+  "inbounds": [
+    {
+      "listen": "127.0.0.1",
+      "port": {{ settings.XRAY_GRPC_ADDR.split(':')[-1] }},
+      "protocol": "dokodemo-door",
+      "tag": "api"
+    },
+    {
+      "tag": "vless-vision",
+      "port": {{ settings.PORT_vless_vision }},
+      "listen": "127.0.0.1",
+      "protocol": "vless",
+      "sniffing": { "enabled": true, "destOverride": ["http", "tls", "quic", "fakedns"] },
+      "settings": {
+        "clients": [],
+        "decryption": "none",
+        "fallbacks": [{ "dest": 8080 }]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "tls",
+        "tlsSettings": {
+          "rejectUnknownSni": true,
+          "alpn": ["h2", "http/1.1"],
+          "certificates": [{
+            "certificateFile": "{{ settings.CERT_PATH }}",
+            "keyFile": "{{ settings.KEY_PATH }}"
+          }]
+        }
+      }
+    },
+    {
+      "tag": "vless-h2",
+      "port": {{ settings.PORT_vless_h2 }},
+      "listen": "127.0.0.1",
+      "protocol": "vless",
+      "sniffing": { "enabled": true, "destOverride": ["http", "tls", "quic", "fakedns"] },
+      "settings": { "clients": [], "decryption": "none" },
+      "streamSettings": {
+        "network": "xhttp",
+        "security": "none",
+        "xhttpSettings": {
+          "path": "{{ settings.XHTTP_PATH }}",
+          "mode": "stream-one"
+        }
+      }
+    },
+    {
+      "tag": "vless-h3",
+      "port": {{ settings.PORT_vless_h3 }},
+      "protocol": "vless",
+      "sniffing": { "enabled": true, "destOverride": ["http", "tls", "quic", "fakedns"] },
+      "settings": { "clients": [], "decryption": "none" },
+      "streamSettings": {
+        "network": "xhttp",
+        "security": "tls",
+        "tlsSettings": {
+            "alpn": ["h3"],
+            "certificates": [{ "certificateFile": "{{ settings.CERT_PATH }}", "keyFile": "{{ settings.KEY_PATH }}" }]
+        },
+        "xhttpSettings": {
+          "path": "{{ settings.XHTTP_PATH }}",
+          "mode": "stream-one"
+        }
+      }
+    }
+  ],
+  "outbounds": [
+    { "tag": "direct", "protocol": "freedom" },
+    { "tag": "dns-out", "protocol": "dns" }
+  ],
+  "routing": {
+    "domainStrategy": "IPOnDemand",
+    "rules": [
+      { "type": "field", "inboundTag": ["api"], "outboundTag": "api" },
+      { "type": "field", "port": 53, "outboundTag": "dns-out" },
+      { "type": "field", "ip": ["10.0.8.0/24"], "outboundTag": "direct" }
+    ]
+  }
+}

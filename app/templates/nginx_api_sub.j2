@@ -1,0 +1,53 @@
+# --- Azenord HRM: API & Subscription Server ---
+
+upstream hrm_backend {
+    server 127.0.0.1:8000; # Порт, на котором слушает Gunicorn
+}
+
+server {
+    listen 80;
+    server_name {{ settings.SERVER_ADDR }};
+
+    # Редирект на HTTPS для безопасности подписок
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    server_name {{ settings.SERVER_ADDR }};
+
+    # SSL сертификаты (те же, что и для основного домена, если это wildcard, или отдельные)
+    ssl_certificate {{ settings.CERT_PATH }};
+    ssl_certificate_key {{ settings.KEY_PATH }};
+
+    # Настройки безопасности SSL
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    add_header Strict-Transport-Security "max-age=63072000" always;
+
+    # Логирование
+    access_log /var/log/nginx/hrm_api_access.log;
+    error_log /var/log/nginx/hrm_api_error.log;
+
+    # Главный эндпоинт подписок
+    location /v1/sub/ {
+        proxy_pass http://hrm_backend;
+
+        # Проброс реальных IP для статистики и безопасности
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Тайм-ауты для API
+        proxy_connect_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    # Заглушка для корня API (опционально)
+    location / {
+        return 404 "Azenord HRM API: Access Denied";
+    }
+}

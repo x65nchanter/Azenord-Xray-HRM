@@ -1,0 +1,13 @@
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N"] # Ошибки, фатальные баги, импорты, нейминг
+ignore = ["F401"] # Игнорируем неиспользуемые импорты (часто в __init__.py)
+
+[tool.basedpyright]
+include = ["app"]
+exclude = ["app/core/xray_api"] # Сгенерированный код лучше не проверять, там черт ногу сломит
+typeCheckingMode = "basic"
+pythonVersion = "3.12"
