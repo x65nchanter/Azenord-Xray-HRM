@@ -5,16 +5,6 @@ upstream hrm_backend {
 }
 
 server {
-    listen 80;
-    server_name {{ settings.SERVER_ADDR }};
-
-    # Редирект на HTTPS для безопасности подписок
-    location / {
-        return 301 https://$host$request_uri;
-    }
-}
-
-server {
     listen {{ settings.INTERNAL_API_ADDR | default('443') }} ssl http2;
     server_name {{ settings.SERVER_ADDR }};
 
