@@ -22,7 +22,7 @@ def add_user(
     no_sync: bool = typer.Option(False, "--no-sync", help="Skip Xray gRPC synchronization"),
 ):
     """Safe registration with full rollback on failure"""
-    if not xray.check_connection():
+    if not xray.check_connection() and not no_sync:
         console.print("[bold red]❌ Xray gRPC is NOT reachable![/bold red]")
         return
 
