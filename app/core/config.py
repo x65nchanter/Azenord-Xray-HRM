@@ -40,6 +40,9 @@ class Settings(BaseSettings):
     CERT_PATH: str = "/path/to/your/cert"
     KEY_PATH: str = "/path/to/your/key"
 
+    XRAY_CERT_PATH: str = "/path/to/your/cert"
+    XRAY_KEY_PATH: str = "/path/to/your/key"
+
     @property
     def inbound_tags_list(self) -> List[str]:
         """Превращает строку из .env в чистый список строк-тегов"""

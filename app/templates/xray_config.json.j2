@@ -41,8 +41,8 @@
           "rejectUnknownSni": true,
           "alpn": ["h2", "http/1.1"],
           "certificates": [{
-            "certificateFile": "{{ settings.CERT_PATH }}",
-            "keyFile": "{{ settings.KEY_PATH }}"
+            "certificateFile": "{{ settings.XRAY_CERT_PATH }}",
+            "keyFile": "{{ settings.XRAY_KEY_PATH }}"
           }]
         }
       }
@@ -74,7 +74,7 @@
         "security": "tls",
         "tlsSettings": {
             "alpn": ["h3"],
-            "certificates": [{ "certificateFile": "{{ settings.CERT_PATH }}", "keyFile": "{{ settings.KEY_PATH }}" }]
+            "certificates": [{ "certificateFile": "{{ settings.XRAY_CERT_PATH }}", "keyFile": "{{ settings.XRAY_KEY_PATH }}" }]
         },
         "xhttpSettings": {
           "path": "{{ settings.XHTTP_PATH }}",
