@@ -1,6 +1,7 @@
 from fastapi import Depends, FastAPI, HTTPException
 from sqlmodel import Session, select
 
+from app.api.routes import papers
 from app.core.config import settings
 from app.core.database import get_session
 from app.core.models import Route, User
@@ -9,7 +10,7 @@ from app.utils.routing_factory import RoutingFactory
 from app.utils.xray_config_factory import OutboundFactory
 
 app = FastAPI()
-
+app.include_router(papers.router)
 
 @app.get("/v1/sub/{user_uuid}")
 async def get_subscription(user_uuid: str, session: Session = Depends(get_session)):

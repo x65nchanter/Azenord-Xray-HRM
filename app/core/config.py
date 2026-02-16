@@ -9,6 +9,7 @@ from app.core.constants import InboundTag  # Импортируем наш Enum
 class Settings(BaseSettings):
     # --- Сетевые настройки ---
     SERVER_ADDR: str = "127.0.0.1"
+    XRAY_DOMAIN: str = "yourdomain.com"
     XHTTP_PATH: str = "/xhttp"
     MESH_DOMAIN: str = "yourdomain.mesh"  # Base domain for internal DNS
     API_DOMAIN: str = "api.yourdomain.com"  # Global domain for API

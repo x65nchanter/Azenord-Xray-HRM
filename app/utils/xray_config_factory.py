@@ -27,7 +27,7 @@ class VisionStrategy(OutboundStrategy):
             "settings": {
                 "vnext": [
                     {
-                        "address": settings.SERVER_ADDR,
+                        "address": settings.XRAY_DOMAIN,
                         "port": settings.PORT_vless_vision,
                         "users": [user],
                     }
@@ -37,7 +37,7 @@ class VisionStrategy(OutboundStrategy):
                 "network": "tcp",
                 "security": "tls",
                 "tlsSettings": {
-                    "serverName": settings.SERVER_ADDR,
+                    "serverName": settings.XRAY_DOMAIN,
                     "alpn": ["http/1.1"],
                 },
             },
@@ -57,7 +57,7 @@ class XHttpStrategy(OutboundStrategy):
             "settings": {
                 "vnext": [
                     {
-                        "address": settings.SERVER_ADDR,
+                        "address": settings.XRAY_DOMAIN,
                         "port": port,
                         "users": [self._get_base_user(user_uuid)],
                     }
@@ -66,7 +66,7 @@ class XHttpStrategy(OutboundStrategy):
             "streamSettings": {
                 "network": "xhttp",
                 "security": "tls",
-                "tlsSettings": {"serverName": settings.SERVER_ADDR, "alpn": alpn},
+                "tlsSettings": {"serverName": settings.XRAY_DOMAIN, "alpn": alpn},
                 "xhttpSettings": {"path": settings.XHTTP_PATH, "mode": "stream-one"},
             },
         }
