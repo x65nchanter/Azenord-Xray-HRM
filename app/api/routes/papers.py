@@ -1,6 +1,8 @@
 import base64
 import io
+import os
 import secrets
+from pathlib import Path
 
 import qrcode
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -11,8 +13,11 @@ from sqlmodel import Session, select
 from app.core.database import get_session
 from app.core.models import User
 
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+TEMPLATE_DIR = BASE_DIR / "templates"
+
 router = APIRouter(prefix="/v1/sub")
-templates = Jinja2Templates(directory="app/templates")
+templates = Jinja2Templates(directory=TEMPLATE_DIR)
 
 
 @router.get("/{user_uuid}/papers")
