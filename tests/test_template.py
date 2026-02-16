@@ -58,7 +58,7 @@ async def test_config_template_integrity(session: Session):
     assert mesh_rule["outboundTag"] == settings.DEFAULT_MESH_OUTBOUND.value
 
     # Проверяем правило из БД
-    db_rule = next((r for r in rules if r.get("domain") == ["domain:google.com"]), None)
+    db_rule = next((r for r in rules if r.get("domain") == "domain:google.com"), None)
     assert db_rule is not None
     # В нашем API прокси-правила из БД ведут на 'proxy' (или твой RoutePolicy.proxy.value)
     assert db_rule["outboundTag"] == RoutePolicy.proxy.value

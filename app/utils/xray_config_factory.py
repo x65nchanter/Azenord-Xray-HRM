@@ -36,7 +36,10 @@ class VisionStrategy(OutboundStrategy):
             "streamSettings": {
                 "network": "tcp",
                 "security": "tls",
-                "tlsSettings": {"serverName": settings.SERVER_ADDR, "alpn": ["http/1.1"]},
+                "tlsSettings": {
+                    "serverName": settings.SERVER_ADDR,
+                    "alpn": ["http/1.1"],
+                },
             },
         }
 
@@ -94,4 +97,7 @@ class OutboundFactory:
 
     @classmethod
     def get_standard_outbounds(cls) -> List[Dict[str, Any]]:
-        return [{"tag": "direct", "protocol": "freedom"}, {"tag": "block", "protocol": "blackhole"}]
+        return [
+            {"tag": "direct", "protocol": "freedom"},
+            {"tag": "block", "protocol": "blackhole"},
+        ]

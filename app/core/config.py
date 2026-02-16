@@ -8,8 +8,8 @@ from app.core.constants import InboundTag  # Импортируем наш Enum
 
 class Settings(BaseSettings):
     # --- Сетевые настройки ---
-    SERVER_ADDR: str
-    XHTTP_PATH: str
+    SERVER_ADDR: str = "127.0.0.1"
+    XHTTP_PATH: str = "/xhttp"
 
     # --- Порты (берутся из .env) ---
     PORT_vless_vision: int = 4430
@@ -28,8 +28,7 @@ class Settings(BaseSettings):
 
     # Тег по умолчанию для роутинга .azenord
     DEFAULT_MESH_OUTBOUND: InboundTag = InboundTag.VISION
-    CERT_PATH: str
-    KEY_PATH: str
+
     # Имя юзера в системе
     SYSTEM_USER: str = "root"
     # Автоматически определяем корень проекта

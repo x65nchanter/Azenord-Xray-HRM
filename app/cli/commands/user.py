@@ -1,5 +1,4 @@
 import uuid
-from typing import Optional
 
 import typer
 from rich.console import Console

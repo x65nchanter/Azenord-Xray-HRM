@@ -22,9 +22,11 @@ def get_link(nickname: str):
             raise typer.Exit(code=1)
 
         if not user.is_active:
-            console.print(
-                f"[yellow]⚠ Внимание: Пользователь {nickname} заблокирован. Ссылка может не работать.[/yellow]"
+            warning_msg = (
+                f"[yellow]⚠ Внимание: Пользователь {nickname} заблокирован. "
+                f"Ссылка может не работать.[/yellow]"
             )
+            console.print(warning_msg)
 
         # Формируем ссылку на основе данных из .env
         sub_url = f"https://{settings.SERVER_ADDR}/v1/sub/{user.uuid}"
@@ -55,7 +57,8 @@ def get_qr(nickname: str):
 
         qr = qrcode.QRCode()
         qr.add_data(sub_url)
-        # print_ascii(invert=True) лучше всего читается в темных терминалах (VS Code, Windows Terminal)
+        # print_ascii(invert=True) лучше читается в темных терминалах
+        # (VS Code, Windows Terminal)
         qr.print_ascii(invert=True)
 
         console.print(f"\n[dim]URL: {sub_url}[/dim]")

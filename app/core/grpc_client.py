@@ -1,5 +1,9 @@
+from typing import Any, cast
+
 import grpc
 from google.protobuf import any_pb2
+
+from app.core.config import settings
 
 # ПРАВИЛЬНЫЕ ПУТИ (через полный путь проекта):
 from app.core.xray_api.app.proxyman.command import command_pb2 as proxyman_command
@@ -7,6 +11,7 @@ from app.core.xray_api.app.proxyman.command import command_pb2_grpc as proxyman_
 from app.core.xray_api.app.stats.command import command_pb2 as stats_command
 from app.core.xray_api.app.stats.command import command_pb2_grpc as stats_service
 from app.core.xray_api.common.protocol import user_pb2
+from app.core.xray_api.common.serial.typed_message_pb2 import TypedMessage
 from app.core.xray_api.proxy.vless import account_pb2
 
 
@@ -31,12 +36,19 @@ class AzenordXrayControl:
         except grpc.RpcError:
             return False
 
-    def add_user(self, inbound_tag: str, email: str, user_uuid: str):
+    def add_user(self, inbound_tag: str, email: str, user_uuid: str) -> bool:
         vless_account = account_pb2.Account(id=user_uuid, flow="")
-        user = user_pb2.User(email=email, level=0, account=self._pack(vless_account))
+        user = user_pb2.User(
+            email=email,
+            level=0,
+            account=TypedMessage(type="vless", value=self._pack(vless_account).SerializeToString()),
+        )
 
         op = proxyman_command.AddUserOperation(user=user)
-        request = proxyman_command.AlterInboundRequest(tag=inbound_tag, operation=self._pack(op))
+        request = proxyman_command.AlterInboundRequest(
+            tag=inbound_tag,
+            operation=TypedMessage(type="addUser", value=self._pack(op).SerializeToString()),
+        )
 
         try:
             self.handler_stub.AlterInbound(request)
@@ -52,7 +64,10 @@ class AzenordXrayControl:
     def remove_user(self, inbound_tag: str, email: str) -> bool:
         """Удаляет пользователя из активного инбаунда Xray по Email"""
         op = proxyman_command.RemoveUserOperation(email=email)
-        request = proxyman_command.AlterInboundRequest(tag=inbound_tag, operation=self._pack(op))
+        request = proxyman_command.AlterInboundRequest(
+            tag=inbound_tag,
+            operation=TypedMessage(type="removeUser", value=self._pack(op).SerializeToString()),
+        )
         try:
             self.handler_stub.AlterInbound(request)
             return True
@@ -64,8 +79,8 @@ class AzenordXrayControl:
         try:
             # Запрашиваем всю доступную статистику
             # pattern="" означает "дай всё, что есть"
-            response = self.stats_stub.GetStats(
-                stats_command.GetStatsRequest(pattern="", reset=False)
+            response = self.stats_stub.QueryStats(
+                stats_command.QueryStatsRequest(pattern="", reset=False)
             )
 
             # Собираем в удобный словарик: { 'название': байты }

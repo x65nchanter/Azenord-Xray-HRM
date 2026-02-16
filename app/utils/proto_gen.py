@@ -82,6 +82,27 @@ def generate_xray_proto():
     proto_files = [str(p) for p in proto_src.rglob("*.proto")]
 
     # 4. Compile via grpc_tools
+    venv_bin = Path(sys.executable).parent
+
+    def find_plugin(name):
+        # Try venv with extensions (.exe for Windows, none for Linux)
+        for ext in ["", ".exe", ".EXE"]:
+            path = venv_bin / f"{name}{ext}"
+            if path.exists():
+                return str(path)
+        # Fallback to system PATH
+        return shutil.which(name)
+
+    mypy_plugin = find_plugin("protoc-gen-mypy")
+    mypy_grpc_plugin = find_plugin("protoc-gen-mypy_grpc")
+
+    if not mypy_plugin:
+        # Debug: let's see what's actually in that folder
+        console.print(f"[bold red]❌ Plugins not found in {venv_bin}[/bold red]")
+        return
+
+    os.environ["TEMPORARY_DISABLE_PROTOBUF_VERSION_CHECK"] = "true"
+
     console.print("[bold magenta]⚙️ Compiling Protobuf files...[/bold magenta]")
     protoc_args = [
         sys.executable,
@@ -90,13 +111,19 @@ def generate_xray_proto():
         f"--proto_path={proto_src}",
         f"--python_out={api_target}",
         f"--grpc_python_out={api_target}",
+        f"--plugin=protoc-gen-mypy={mypy_plugin}",
+        f"--plugin=protoc-gen-mypy_grpc={mypy_grpc_plugin}",
+        f"--mypy_out={api_target}",
+        f"--mypy_grpc_out={api_target}",
         *proto_files,
     ]
     subprocess.run(protoc_args, check=True)
 
     # 5. The "Surgical" Import Fix (Absolute Imports)
     console.print("[bold yellow]🧪 Fixing Python imports...[/bold yellow]")
-    for py_file in api_target.rglob("*.py"):
+    all_files = list(api_target.rglob("*.py")) + list(api_target.rglob("*.pyi"))
+
+    for py_file in all_files:
         content = py_file.read_text()
         # Fix: from app... -> from app.core.xray_api.app...
         # Fix: import app... -> import app.core.xray_api.app...

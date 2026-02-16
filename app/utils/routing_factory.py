@@ -25,9 +25,9 @@ class RoutingFactory:
             # Logic for Domain vs IP
             if r.pattern:
                 if any(x in r.pattern for x in ["geosite", "domain", "keyword", "regexp"]):
-                    rule["domain"] = [r.pattern]
+                    rule["domain"] = str(r.pattern)
                 else:
-                    rule["ip"] = [r.pattern]
+                    rule["ip"] = str(r.pattern)
 
             # Optional attributes
             if r.network:
@@ -35,9 +35,9 @@ class RoutingFactory:
             if r.port:
                 rule["port"] = r.port
             if r.process_name:
-                rule["process"] = [r.process_name]
+                rule["process"] = str(r.process_name)
             if r.package_name:
-                rule["packageName"] = [r.package_name]
+                rule["packageName"] = str(r.package_name)
 
             rules.append(rule)
 

@@ -8,7 +8,7 @@ from app.api.main import app
 from app.cli.commands.user import add_user
 from app.core.config import settings
 from app.core.constants import InboundTag
-from app.core.models import Route, User
+from app.core.models import Route, RoutePolicy, User
 
 
 @pytest.mark.asyncio
@@ -128,7 +128,7 @@ def test_config_invalid_inbound_tag_in_env(session: Session):
 async def test_api_route_priority_order(session: Session):
     """Edge Case: Проверка приоритета правил роутинга"""
     # Создаем правило в БД, которое конфликтует с системным Mesh-правилом
-    conflict_route = Route(pattern="domain:.azenord", policy="direct")
+    conflict_route = Route(pattern="domain:.azenord", policy=RoutePolicy.direct)
     session.add(conflict_route)
     session.commit()
 
@@ -150,7 +150,6 @@ async def test_api_route_priority_order(session: Session):
 
 def test_cli_add_user_partial_grpc_failure(session):
     """Edge Case: Откат (Rollback) при частичном сбое gRPC (например, 2 из 3 Ок)"""
-    from app.cli.commands.user import add_user
 
     with patch("app.cli.commands.user.xray") as mocked_xray:
         mocked_xray.check_connection.return_value = True
@@ -169,4 +168,4 @@ def test_cli_add_user_partial_grpc_failure(session):
         # Должен быть вызван remove_user для очистки того, что успели добавить
         assert mocked_xray.remove_user.called
         # В базе не должно быть юзера
-        assert session.query(User).filter_by(nickname="broken").first() is None
+        assert session.exec(select(User).where(User.nickname == "broken")).first() is None

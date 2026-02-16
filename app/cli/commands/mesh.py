@@ -70,7 +70,7 @@ def mesh_scan():
     """Пинг всех активных IP в Mesh (10.0.8.0/24)"""
     console.print("[bold cyan]📡 Сканирование Mesh-сети...[/bold cyan]")
     with Session(engine) as session:
-        users = session.exec(select(User).where(User.is_active == True)).all()
+        users = session.exec(select(User).where(User.is_active)).all()
         for u in users:
             response = os.system(f"ping -n 1 -w 1000 {u.internal_ip} > nul")
             status = "[green]ONLINE[/green]" if response == 0 else "[red]OFFLINE[/red]"

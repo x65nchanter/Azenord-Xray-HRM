@@ -1,3 +1,4 @@
+import typer
 from rich.console import Console
 
 from app.core.config import settings

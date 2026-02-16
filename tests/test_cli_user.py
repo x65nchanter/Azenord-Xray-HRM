@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from sqlmodel import select
 from typer.testing import CliRunner
 
 from app.cli.main import app
@@ -34,7 +35,7 @@ def test_user_add_full_cycle(session, mock_xray_user):
     assert mock_xray_user.add_user.call_count == 3
 
     # Проверка записи в БД
-    user = session.query(User).filter_by(nickname=nickname).first()
+    user = session.exec(select(User).where(User.nickname == nickname)).first()
     assert user is not None
     assert user.email == email
     assert user.internal_ip.startswith("10.0.8.")
@@ -102,4 +103,4 @@ def test_user_remove_complete(session, mock_xray_user):
 
     assert result.exit_code == 0
     assert mock_xray_user.remove_user.call_count == 3
-    assert session.query(User).filter_by(nickname="ghost").first() is None
+    assert session.exec(select(User).where(User.nickname == "ghost")).first() is None
