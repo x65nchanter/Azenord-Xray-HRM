@@ -3,6 +3,7 @@ from typing import Optional
 
 import typer
 from rich.console import Console
+from rich.panel import Panel
 from rich.table import Table
 from sqlmodel import Session, select
 
@@ -149,14 +150,46 @@ def user_info(nickname: str):
         down = all_stats.get(f"user>>>{user.email}>>>traffic>>>downlink", 0)
         up = all_stats.get(f"user>>>{user.email}>>>traffic>>>uplink", 0)
 
-        table = Table(show_header=False, title=f"User Card: {nickname}")
-        table.add_row("Email", user.email)
-        table.add_row("Internal IP", user.internal_ip)
-        table.add_row("UUID", user.uuid)
-        table.add_row("Status", "[green]Active[/green]" if user.is_active else "[red]Banned[/red]")
-        table.add_row("Traffic Down", f"{down / 1024**2:.2f} MB")
-        table.add_row("Traffic Up", f"{up / 1024**2:.2f} MB")
-        console.print(table)
+        down_mb = f"{down / 1024**2:.2f} MB"
+        up_mb = f"{up / 1024**2:.2f} MB"
+
+        table = Table(show_header=False, box=None, padding=(0, 2))
+
+        # General Info
+        table.add_row("[bold cyan]Email[/]", user.email)
+        table.add_row("[bold cyan]Internal IP[/]", f"[magenta]{user.internal_ip}[/]")
+        table.add_row("[bold cyan]DNS Name[/]", f"[yellow]{user.dns_name}[/]")
+        table.add_row("[bold cyan]UUID[/]", user.uuid)
+        table.add_row(
+            "[bold cyan]Status[/]", "[green]● Active[/]" if user.is_active else "[red]○ Banned[/]"
+        )
+
+        table.add_section()  # Add a small separator
+
+        # Traffic Info
+        table.add_row("[bold blue]Traffic Down[/]", down_mb)
+        table.add_row("[bold blue]Traffic Up[/]", up_mb)
+
+        table.add_section()
+
+        # Access Info
+        table.add_row(
+            "[bold yellow]Papers Token[/]",
+            f"[gray]{user.papers_token[:8]}...{user.papers_token[-8:]}[/]",
+        )
+        table.add_row(
+            "[bold yellow]Papers Link[/]", f"[link={user.papers_link}]{user.papers_link}[/]"
+        )
+
+        # Wrap everything in a nice Panel
+        console.print(
+            Panel(
+                table,
+                title=f"[bold white]Resident Card: {user.nickname}[/]",
+                expand=False,
+                border_style="bright_blue",
+            )
+        )
 
 
 @app.command("ban")

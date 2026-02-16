@@ -172,7 +172,6 @@ def init():
     console.print("[bold cyan]🐣 Начало инициализации Azenord HRM...[/bold cyan]")
 
     # 1. Создаем структуру папок
-    Path("data").mkdir(exist_ok=True)
     Path("app/core/xray_api").mkdir(parents=True, exist_ok=True)
 
     # 2. Генерируем протоколы (фундамент)
