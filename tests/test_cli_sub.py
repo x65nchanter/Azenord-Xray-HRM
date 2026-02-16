@@ -1,7 +1,7 @@
 import pytest
 from typer.testing import CliRunner
 
-from app.cli.main import app
+from app.cli.__main__ import app
 from app.core.config import settings
 from app.core.models import User
 

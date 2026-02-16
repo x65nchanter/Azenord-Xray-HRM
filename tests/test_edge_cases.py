@@ -91,7 +91,7 @@ async def test_api_subscription_leak_protection(session: Session):
     # В конфиге Нео НЕ должно быть упоминания UUID Тринити
     assert "uuid-2" not in response.text
     # Но никнейм Тринити должен быть в DNS hosts (так как это Mesh)
-    assert "trinity.azenord" in response.json()["dns"]["hosts"]
+    assert f"trinity.{settings.MESH_DOMAIN}" in response.json()["dns"]["hosts"]
 
 
 def test_ipam_full_subnet_collision(session: Session):
@@ -128,7 +128,7 @@ def test_config_invalid_inbound_tag_in_env(session: Session):
 async def test_api_route_priority_order(session: Session):
     """Edge Case: Проверка приоритета правил роутинга"""
     # Создаем правило в БД, которое конфликтует с системным Mesh-правилом
-    conflict_route = Route(pattern="domain:.azenord", policy=RoutePolicy.direct)
+    conflict_route = Route(pattern=f"domain:.{settings.MESH_DOMAIN}", policy=RoutePolicy.direct)
     session.add(conflict_route)
     session.commit()
 
@@ -142,9 +142,10 @@ async def test_api_route_priority_order(session: Session):
 
     rules = response.json()["routing"]["rules"]
 
-    # Первым правилом ДОЛЖНО идти системное правило .azenord -> proxy (Master Outbound)
+    # Первым правилом ДОЛЖНО идти системное правило
+    # .{settings.MESH_DOMAIN} -> proxy (Master Outbound)
     # Наша логика в API ставит системные правила в начало списка
-    assert rules[0]["domain"] == ["domain:.azenord"]
+    assert rules[0]["domain"] == [f"domain:.{settings.MESH_DOMAIN}"]
     assert rules[0]["outboundTag"] == settings.DEFAULT_MESH_OUTBOUND.value
 
 
@@ -159,7 +160,7 @@ def test_cli_add_user_partial_grpc_failure(session):
         # Запускаем через runner, чтобы проверить вывод
         from typer.testing import CliRunner
 
-        from app.cli.main import app
+        from app.cli.__main__ import app
 
         runner = CliRunner()
 

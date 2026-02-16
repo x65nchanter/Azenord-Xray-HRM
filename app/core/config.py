@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     # --- Сетевые настройки ---
     SERVER_ADDR: str = "127.0.0.1"
     XHTTP_PATH: str = "/xhttp"
+    MESH_DOMAIN: str = "yourdomain.mesh"  # Base domain for internal DNS
+    API_DOMAIN: str = "api.yourdomain.com"  # Global domain for API
 
     # --- Порты (берутся из .env) ---
     PORT_vless_vision: int = 4430
@@ -27,7 +29,7 @@ class Settings(BaseSettings):
     # Мы ожидаем строку через запятую: "vless-vision,vless-h2"
     ACTIVE_INBOUND_TAGS: str = "vless-vision,vless-h2,vless-h3"
 
-    # Тег по умолчанию для роутинга .azenord
+    # Тег по умолчанию для роутинга .mesh
     DEFAULT_MESH_OUTBOUND: InboundTag = InboundTag.VISION
 
     # Имя юзера в системе

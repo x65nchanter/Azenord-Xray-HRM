@@ -13,7 +13,7 @@ class RoutingFactory:
         rules = [
             {
                 "type": "field",
-                "domain": ["domain:.azenord"],
+                "domain": [f"domain:.{settings.MESH_DOMAIN}"],
                 "outboundTag": settings.DEFAULT_MESH_OUTBOUND.value,
             }
         ]

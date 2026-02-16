@@ -76,7 +76,7 @@ Azenord-Xray-HRM/
 **Описание:** Динамическая сборка конфига для клиента.
 
 **Логика работы:**
-1.  **DNS:** Формирует блок `hosts` на основе всех Nickname и IP из базы (для связи `user.azenord`).
+1.  **DNS:** Формирует блок `hosts` на основе всех Nickname и IP из базы (для связи `user.yourdomain.mesh`).
 2.  **Routing:** 
     *   Все записи с политикой `proxy` попадают в `outboundTag: "proxy"`.
     *   Все записи с политикой `direct` попадают в `outboundTag: "direct"`.

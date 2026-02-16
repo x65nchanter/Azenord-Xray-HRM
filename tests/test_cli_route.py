@@ -4,7 +4,7 @@ import pytest
 from sqlmodel import select
 from typer.testing import CliRunner
 
-from app.cli.main import app
+from app.cli.__main__ import app
 from app.core.models import Route
 
 runner = CliRunner()

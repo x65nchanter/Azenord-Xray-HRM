@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 import typer
 from rich.console import Console
@@ -19,10 +20,12 @@ console = Console()
 def add_user(
     nickname: str,
     email: str,
-    no_sync: bool = typer.Option(False, "--no-sync", help="Skip Xray gRPC synchronization"),
+    no_sync: Optional[bool] = typer.Option(
+        None, "--no-sync", help="Skip Xray gRPC synchronization"
+    ),
 ):
     """Safe registration with full rollback on failure"""
-    if not xray.check_connection() and not no_sync:
+    if not xray.check_connection() and no_sync is not True:
         console.print("[bold red]❌ Xray gRPC is NOT reachable![/bold red]")
         return
 
@@ -41,7 +44,7 @@ def add_user(
 
         try:
             # 2. Xray Sync Phase
-            if no_sync:
+            if no_sync is True:
                 console.print("[blue]ℹ Skipping Xray sync as requested.[/blue]")
             else:
                 for tag in active_tags:
@@ -61,7 +64,7 @@ def add_user(
             console.print(f"[bold red]❌ Sync Error: {e}[/bold red]")
             console.print("[yellow]🔄 Rolling back Xray changes...[/yellow]")
 
-            if no_sync:
+            if no_sync is True:
                 console.print("[blue]ℹ Skipping Xray sync as requested.[/blue]")
             else:
                 for tag in added_tags:

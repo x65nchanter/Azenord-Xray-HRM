@@ -1,8 +1,11 @@
+import secrets
 import uuid
 from enum import Enum
 from typing import Optional
 
 from sqlmodel import Field, SQLModel
+
+from app.core.config import settings
 
 
 class RoutePolicy(str, Enum):
@@ -17,6 +20,20 @@ class User(SQLModel, table=True):
     uuid: str = Field(default_factory=lambda: str(uuid.uuid4()), unique=True)
     internal_ip: str = Field(unique=True)
     is_active: bool = Field(default=True)
+    dns_name: str = Field(unique=True)
+
+    # Secure Link Logic
+    papers_token: str = Field(default_factory=lambda: secrets.token_hex(64))
+
+    def __init__(self, **data):
+        if "dns_name" not in data and "nickname" in data:
+            data["dns_name"] = f"{data['nickname']}.{settings.MESH_DOMAIN}"
+        super().__init__(**data)
+
+    @property
+    def papers_link(self) -> str:
+        # Dynamic link generation
+        return f"https://{settings.API_DOMAIN}/v1/sub/{self.uuid}/papers?pls={self.papers_token}"
 
 
 class Route(SQLModel, table=True):

@@ -34,7 +34,7 @@ async def test_config_template_integrity(session: Session):
 
     # --- ПРОВЕРКА 1: DNS & FakeDNS ---
     assert "fakedns" in config
-    assert config["dns"]["hosts"]["master.azenord"] == "10.0.8.2"
+    assert config["dns"]["hosts"][f"master.{settings.MESH_DOMAIN}"] == "10.0.8.2"
     assert "https://1.1.1.1" in config["dns"]["servers"]
 
     # --- ПРОВЕРКА 2: Outbounds (Транспорты) ---
@@ -53,7 +53,9 @@ async def test_config_template_integrity(session: Session):
     rules = config["routing"]["rules"]
 
     # Проверяем системное правило Mesh (оно должно быть в начале или существовать)
-    mesh_rule = next((r for r in rules if r.get("domain") == ["domain:.azenord"]), None)
+    mesh_rule = next(
+        (r for r in rules if r.get("domain") == [f"domain:.{settings.MESH_DOMAIN}"]), None
+    )
     assert mesh_rule is not None
     assert mesh_rule["outboundTag"] == settings.DEFAULT_MESH_OUTBOUND.value
 
