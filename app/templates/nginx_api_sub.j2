@@ -15,7 +15,8 @@ server {
 }
 
 server {
-    listen 443 ssl http2;
+    listen 443 ssl;
+    http2 on;
     server_name {{ settings.SERVER_ADDR }};
 
     # SSL сертификаты (те же, что и для основного домена, если это wildcard, или отдельные)
