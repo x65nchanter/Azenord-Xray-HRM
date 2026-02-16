@@ -19,6 +19,7 @@ console = Console()
 def add_user(nickname: str, email: str):
     """Safe registration with full rollback on failure"""
     if not xray.check_connection():
+        console.print("[bold red]❌ Xray gRPC is NOT reachable![/bold red]")
         return
 
     with Session(engine) as session:
