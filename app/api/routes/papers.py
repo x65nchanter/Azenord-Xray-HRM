@@ -1,20 +1,27 @@
+import base64
+import io
 import secrets
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+import qrcode
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select
 
 from app.core.database import get_session
 from app.core.models import User
 
 router = APIRouter(prefix="/v1/sub")
+templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/{user_uuid}/papers")
 async def get_resident_papers(
+    request: Request,
     user_uuid: str,
     pls: str = Query(..., description="One-time secret token"),
     session: Session = Depends(get_session),
-):
+) -> HTMLResponse:
     # 1. Find user by UUID
     user = session.exec(select(User).where(User.uuid == user_uuid)).first()
 
@@ -34,18 +41,27 @@ async def get_resident_papers(
     session.commit()
     session.refresh(user)
 
-    status = "Verified"
-    if user.is_active:
-        status = "Verified"
-    else:
-        status = "Blocked"
+    sub_url = user.papers_link
+    qr = qrcode.QRCode(version=1, box_size=10, border=2)
+    qr.add_data(sub_url)
+    qr.make(fit=True)
 
-    # 4. Prepare data for the Page (HTML response or JSON)
-    return {
-        "status": status,
-        "nickname": user.nickname,
-        "email": user.email,
-        "internal_ip": user.internal_ip,
-        "dns_name": user.dns_name,
-        "is_active": user.is_active,
-    }
+    img = qr.make_image(fill_color="#00ff41", back_color="#0a0a0a")
+    buf = io.BytesIO()
+    img.save(buf)
+    qr_base64 = base64.b64encode(buf.getvalue()).decode()
+
+    return templates.TemplateResponse(
+        "papers.html",
+        {
+            "request": request,
+            "status": "Active" if user.is_active else "Banned",
+            "nickname": user.nickname,
+            "email": user.email,
+            "internal_ip": user.internal_ip,
+            "dns_name": user.dns_name,
+            "is_active": user.is_active,
+            "qr_code": qr_base64,
+            "next_link": sub_url,
+        },
+    )

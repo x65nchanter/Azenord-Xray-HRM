@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>AZENORD // RESIDENT_IDENTIFICATION</title>
+        <style>
+            body {
+                background: #0a0a0a;
+                color: #00ff41;
+                font-family: "Courier New", monospace;
+                padding: 30px;
+                line-height: 1.5;
+            }
+            .line {
+                visibility: hidden;
+                white-space: nowrap;
+                border-right: 2px solid #00ff41;
+                width: fit-content;
+            }
+
+            /* Анимация появления строк */
+            @keyframes typing {
+                from {
+                    width: 0;
+                    visibility: visible;
+                }
+                to {
+                    width: 100%;
+                    visibility: visible;
+                }
+            }
+            @keyframes blink {
+                50% {
+                    border-color: transparent;
+                }
+            }
+
+            .type {
+                animation:
+                    typing 1s steps(40, end) forwards,
+                    blink 0.5s step-end infinite;
+            }
+            .d-1 {
+                animation-delay: 0s;
+            }
+            .d-2 {
+                animation-delay: 1.2s;
+            }
+            .d-3 {
+                animation-delay: 2.4s;
+            }
+
+            .fade-in {
+                opacity: 0;
+                animation: fadeIn 1s 3.5s forwards;
+            }
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            .highlight {
+                color: #fff;
+                text-shadow: 0 0 5px #00ff41;
+            }
+            img {
+                filter: drop-shadow(0 0 5px #00ff41);
+                margin: 20px 0;
+                max-width: 250px;
+            }
+            .token-box {
+                word-break: break-all;
+                font-size: 0.8em;
+                color: #008f11;
+                border: 1px solid #004408;
+                padding: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="line type d-1">
+            > SYSTEM_STATUS: <span class="highlight">[{{ status }}]</span>
+        </div>
+        <div class="line type d-2">
+            > IDENT_RESIDENT: <span class="highlight">{{ nickname }}</span> //
+            {{ email }}
+        </div>
+        <div class="line type d-3">
+            > MESH_NETWORK: {{ internal_ip }} // DNS: {{ dns_name }}
+        </div>
+
+        <div class="fade-in">
+            <p>--------------------------------------------------</p>
+            <p>> NEXT_SESSION_ACCESS_QR_CODE:</p>
+            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" />
+
+            <p>> NEW_ACCESS_LINK (SAVE_IT):</p>
+            <div class="token-box">{{ next_link }}</div>
+
+            <p style="margin-top: 20px; color: #444">
+                [!] WARNING: SESSION_TOKEN_BURNED_UPON_READ.
+            </p>
+            <p style="color: #444">_END_OF_LINE_</p>
+        </div>
+    </body>
+</html>
