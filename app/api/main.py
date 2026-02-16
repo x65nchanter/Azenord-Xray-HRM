@@ -38,8 +38,8 @@ async def get_subscription(user_uuid: str, session: Session = Depends(get_sessio
     outbounds = [o for o in outbounds if o]  # Filter empty
     outbounds.extend(OutboundFactory.get_standard_outbounds())
 
-    # 4. Final Assembly
-    config_dict = {
+    # Отдаем как ТЕКСТ (это важно для парсеров)
+    return {
         "version": "2.0",
         "email": user.email,
         "fakedns": [{"ipPool": "198.18.0.0/16", "poolSize": 65535}],
@@ -51,13 +51,6 @@ async def get_subscription(user_uuid: str, session: Session = Depends(get_sessio
         "outbounds": outbounds,
         "routing": {"domainStrategy": "IPIfNonMatch", "rules": routing_rules},
     }
-
-    # Превращаем в строку и кодируем
-    json_str = json.dumps(config_dict, indent=2)
-    b64_config = base64.b64encode(json_str.encode()).decode()
-
-    # Отдаем как ТЕКСТ (это важно для парсеров)
-    return Response(content=b64_config, media_type="text/plain")
 
 
 # @app.get("/v1/sub/{user_uuid}")
