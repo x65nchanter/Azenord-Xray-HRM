@@ -1,7 +1,7 @@
 # --- Azenord HRM: API & Subscription Server ---
 
 upstream hrm_backend {
-    server 127.0.0.1:8000; # Порт, на котором слушает Gunicorn
+    server 127.0.0.1:{{ settings.API_PORT | default('8000') }}; # Порт, на котором слушает Gunicorn
 }
 
 server {

@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     XHTTP_PATH: str = "/xhttp"
     MESH_DOMAIN: str = "yourdomain.mesh"  # Base domain for internal DNS
     API_DOMAIN: str = "api.yourdomain.com"  # Global domain for API
+    API_PORT: int = 8000  # Port for gunicorn
 
     # --- Порты (берутся из .env) ---
     PORT_vless_vision: int = 4430
