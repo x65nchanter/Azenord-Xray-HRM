@@ -256,3 +256,18 @@ def sync_all():
                         )
 
     console.print("[bold green]✅ Full sync complete.[/bold green]")
+
+
+@app.command("link")
+def get_user_link(nickname: str):
+    """🔗 Вывести только прямую ссылку papers_link"""
+    with Session(engine) as session:
+        user = session.exec(select(User).where(User.nickname == nickname)).first()
+
+        if not user:
+            console.print(f"[bold red]❌ Resident '{nickname}' not found.[/bold red]")
+            return
+
+        # Выводим чистую ссылку без оберток, чтобы удобно было копировать в терминале
+        # Мы используем [link], чтобы терминал понял, что это URL
+        console.print(f"[link={user.papers_link}]{user.papers_link}[/link]")
